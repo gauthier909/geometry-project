@@ -1,0 +1,14 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+canvas {
+  display: block;
+}
+
+a {
+  position: absolute;
+  bottom: 10vh;
+  left: 15vw;
+}
