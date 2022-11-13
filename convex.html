@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Isoperimetric</title>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <style>
+        script { text-align: center; }
+    </style>
+
+    <script src="libraries/p5.min.js"></script>
+    <script src="libraries/p5.sound.min.js"></script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+  </head>
+
+  <body>
+    <h1>Convexity of a fixed perimeter curve of maximum area</h1>
+    <p> Considering a closed curve with a fixed perimeter that maximize the area inside the curve.
+        This curve must be convex or else, it is not the curve that maximize the area for the given
+        perimeter.
+    </p>
+    <p>We will intiutively show this by the fact that, if we take two points of the curve for which the segment
+        joining these two points is outside the curve (which can be the case with a non-convex curve), we can 
+        do a reflection of the part of the curve between our two points with the segment joining these two points.
+        With this reflection we obtain a new curve with same perimeter but  the area that the curve covers is bigger.
+    </p>
+    <p>Here below we show an example to this with a non-convex polygon that we transform following the method described
+        above to obtain a same perimeter convex polygon but that covers a bigger area. 
+    </p>
+    <script src="convex.js"></script>
+  </body>
+</html>
