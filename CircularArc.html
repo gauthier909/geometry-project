@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CircularArc</title>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <style>
+        script { text-align: center; }
+    </style>
+
+    <script src="libraries/p5.min.js"></script>
+    <script src="libraries/p5.sound.min.js"></script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+  </head>
+
+  <body>
+    <h1>Circular Arc (absolutely not finished)</h1>
+    <p> Let's consider an open curve joining two endpoints of a segment to form a closed curve of maximum area
+        for a fixed perimeter. Then this open curve is a circular arc. We can intiutively see it if we extend
+        this open curve to a full circle. We would obtain a circle and the two endpoints of the segment would be
+        points of the circle. If we change the shape of the open curve while maintaining the same perimeter,
+        we would no more have a circle. This go against <a href="isoperimetric.html"> the isoperimetric theorem</a>,
+        and thus, this new curve is not of maximum area.
+    </p>
+    <p> Now considering our original problem : If we want to enclose a convex polygon inside a closed curve of
+        maximum area with a fixed perimeter, we would intuitively obtain a sequence of one or more curves, 
+        each one being either a circular arc of similar radius or a segment flush of the polygon.
+    </p>
+    <p> The reason why the circular arcs should be of similar radius is because a closed curve of maximum area
+      has to be convex (see <a href="convex.html">Convexity</a>). For the same reason, the endpoints of these
+      circular arcs have to be vertices of the polygon. (need more text + need the swap of part of circular arc
+      in the canvas)
+    </p>
+    <script src="CircularArc.js"></script>
+  </body>
+</html>
