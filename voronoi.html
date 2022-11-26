@@ -21,11 +21,12 @@
 
   <body>
     <h1>Voronoi Diagram</h1>
-    
+    <img src="voronoi.png">
     <p>The basic voronoi diagram consist in finitely many points (seeds) in a plane. For each points there is a corresponding region, called a Voronoi cell, consisting of all points of the plane closer to that seed than to any other:</p>
     <p>But in our case we will use the the farthest-point Voronoi diagram in order to compute the (P, Q)-curve of maximum area.</p>
-    <p>In order to construct the farthest point voronoi diagram we first need to construct the convex hull (using gift wrapping algorithm) of the points and then the smallest enclosing circle</p>
+    <p>In order to construct the farthest point voronoi diagram we first need to construct the convex hull (using gift wrapping algorithm) of the points and then the smallest enclosing circle (using Welzl's algorithm)</p>
     <script src="voronoi.js"></script>
+    
   </body>
 </html>
 
