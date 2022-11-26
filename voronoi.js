@@ -23,7 +23,7 @@ class Circle {
     }
 }
 
-var convexHull = [];
+var convexHull = []; //Ici je regroupe les points du convex hull vu que ce sont les seuls qui nous intéresse
 var points = [];
 var lines = [];
 var circles = [];
@@ -52,12 +52,13 @@ function setup() {
 
 
 function draw() {
-    // Put drawings here
+
     background(200);
     for (i in points) {
         ellipse(points[i].x, points[i].y, 4, 4);
     }
 
+    /*Show lines of the convex hull*/
     for (i in lines) {
         line(lines[i].x1, lines[i].y1, lines[i].x2, lines[i].y2);
     }
@@ -66,12 +67,14 @@ function draw() {
         fill(255, 0, 0, 127);
     }
 
+    /*Show the center of the smallest circle*/
     if(showCenter){
         ellipse(circles[0].x,circles[0].y,10,10)
     }
 
 }
 
+/*Add random point in the canva*/
 function randomPoint() {
     let width = Math.floor(Math.random() * 501);
     let height = Math.floor(Math.random() * 501);
@@ -80,7 +83,7 @@ function randomPoint() {
 }
 
 
-
+/*compute the convex hull*/
 function drawCH() {
     for (let i = 0; i < points.length - 1; i++) {
         for (let j = i + 1; j < points.length; j++) {
@@ -112,6 +115,7 @@ function isSegmentConvex(point1, point2, points) {
     return true;
 }
 
+/*Ici j'ajoute tout les points du convex hull dans le tableau convexHull []*/
 function addInConvexHull(point1, point2) {
     if (!convexHull.some((e) => (e.x === point1.x && e.y === point1.y))) {
         convexHull.push(point1);
@@ -122,6 +126,7 @@ function addInConvexHull(point1, point2) {
 
 }
 
+/*Calcul du plus petit cercle*/
 function smallestCircle() {
     const result = (weltz(convexHull, convexHull.length, [], 0));
     let smallestCircle = new Circle(result.x, result.y, result.r * 2);
@@ -129,6 +134,7 @@ function smallestCircle() {
     showCenter = true;
 }
 
+/*Algorithme de weltz qui permet de trouver le plus petit cercle*/
 function weltz(convexHull, nbrPoints, bound, b) {
     let circle;
     if (b === 3) circle = check3(bound[0], bound[1], bound[2])
