@@ -23,19 +23,45 @@ class Circle {
     }
 }
 
+class Edge {
+    constructor(a, b, p1, p2) {
+        this.a = a;
+        this.b = b;
+        this.p1 = p1;
+        this.p2 = p2;
+        this.x1 = null;
+        this.y1 = null;
+        this.x2 = null;
+        this.y2 = null;
+    }
+
+    setIntersect1(x, y) {
+        this.x1 = x;
+        this.y1 = y
+    }
+
+    setIntersect2(x, y) {
+        this.x2 = x;
+        this.y2 = y
+    }
+}
+
 var convexHull = []; //Ici je regroupe les points du convex hull vu que ce sont les seuls qui nous intéresse
 var points = [];
 var lines = [];
 var circles = [];
+var edges = [];
 var showCenter = false;
 var leftMostPoint;
+var fpvd = false;
+
 
 
 function setup() {
     createCanvas(1000, 700);
 
     button = createButton('Add random point');
-
+    
     button.mousePressed(randomPoint);
 
     button2 = createButton('Draw CH');
@@ -46,11 +72,23 @@ function setup() {
 
     button3.mousePressed(smallestCircle);
 
+    button4 = createButton('FPVD');
+
+    button4.mousePressed(Construct_FPVD);
+
     button.position(1000, 900);
     button2.position(1150, 900);
     button3.position(1250, 900);
+    button4.position(1400, 900);
 }
 
+function Construct_FPVD() {
+    if (fpvd == false) {
+        fpvd = true;
+    } else {
+        fpvd = false;
+    }
+}
 
 function draw() {
 
@@ -71,6 +109,14 @@ function draw() {
     /*Show the center of the smallest circle*/
     if (showCenter) {
         ellipse(circles[0].x, circles[0].y, 10, 10)
+    }
+    
+    if (fpvd == true) {
+        FPVD();
+        //console.log(edges.length);
+        for (let i = 0; i < edges.length; i++) {
+            line(edges[i].x1, edges[i].y1, edges[i].x2, edges[i].y2);
+        }
     }
 
 }
@@ -246,6 +292,170 @@ function check2(p1, p2) {
 
 function inCircle(p, c) {
     return ((c.x - p.x) * (c.x - p.x) + (c.y - p.y) * (c.y - p.y) <= c.r * c.r)
+}
+
+function FPVD() {
+    let boundary_points = boundary();
+    let circle_flag = false;
+    if (boundary_points.length > 2) {
+        circle_flag = true;
+    }
+    FPVD_tree(boundary_points, convexHull, circle_flag);
+    infinity_line()
+/*
+    while (boundary_points.length > 0) {
+        let tmp_point = boundary_points[boundary_points.length-1];
+        for (let i = 0; i < boundary_points.length-1; i++) {
+            createEdge(boundary_points[i], tmp_point, circles[0]);
+            if (len > 2) {
+                edges[edges.length-1].setIntersect1(circles[0].x, circles[0].y);
+            }
+            for (let j = 0; j < lines.length; j++) {
+                if ((lines[j].x1 == boundary_points[i].x && lines[j].y1 == boundary_points[i].y
+                    && lines[j].x2 == tmp_point.x && lines[j].y2 == tmp_point.y) || 
+                    (lines[j].x1 == tmp_point.x && lines[j].y1 == tmp_point.y
+                        && lines[j].x2 == boundary_points[i].x && lines[j].y2 == boundary_points[i].y)) {
+                            lines.splice(j, 1);
+                            break;
+                        }
+            }
+        }
+        boundary_points.pop();
+    }
+
+    for (let i = 0; i < lines.length; i++) {
+        let p1 = new Point(lines[i].x1, lines[i].y1);
+        let p2 = new Point(lines[i].x2, lines[i].y2);
+        createEdge(p1, p2, circles[0]);
+    }
+
+    infinity_line();
+    */
+}
+/*
+function CircleDist(x, y, c) {
+    return c.r**2 - ((c.x - x)**2 + (c.y - y)**2);
+}
+*/
+function boundary() {
+    let res = [];
+    for (let i = 0; i < convexHull.length; i++) {
+        let tmp = (convexHull[i].x - circles[0].x)**2 + (convexHull[i].y - circles[0].y)**2;
+        if (tmp < (circles[0].r/2)**2 + 0.1 && tmp > (circles[0].r/2)**2 - 0.1) {
+            res.push(convexHull[i]);
+        }
+    }
+    return res;
+}
+
+function createEdge(p1, p2, c) {
+    let a = p2.y - p1.y;
+    let b = p1.x - p2.x;
+    let d = a*p1.x + b*p1.y;
+    a = a*(-1)/b;
+    b = d/b;
+    a = (-1)*(a**(-1));
+    b = c.y - a*c.x;
+    let edge = new Edge(a, b, p1, p2);
+    edges.push(edge);
+}
+
+function FPVD_tree(p_list, ch, c) {
+    let flag = true;
+    let res = [];
+    let part = [];
+
+    for (let i = 0; i < ch.length; i++) {
+        if (ch[i].x == p_list[0].x && ch[i].y == p_list[0].y) {
+            if (flag == true) {
+                createEdge(p_list[p_list.length-1], p_list[0], circles[0]);
+                flag = false;
+            } else {
+                createEdge(p_list[0], p_list[1], circles[0]);
+                p_list.splice(0, 1);
+            }
+            if (c == true) {
+                edges[edges.length-1].setIntersect1(circles[0].x, circles[0].y);
+            }
+            res.push([part, edges[edges.length-1]]);
+            part = [];
+        } else {
+            part.push(ch[i]);
+        }
+    }
+    if (part != []) {
+        res[0][0] = part.concat(res[0][0]);
+    }
+    for (let i = 0; i < res.length; i++) {
+        FPVD_subtree(res[i]);
+    }
+}
+
+function FPVD_subtree(l) {
+    if (l[0] != []) {
+        let max_dist = 0;
+        let best_point = null;
+        let index = 0;
+        for (let i = 0; i < l[0].length; i++) {
+            let dist = dist_point_edge(l[0][i], l[1])
+            if (dist > max_dist) {
+                max_dist = dist;
+                best_point = l[0][i];
+                index = i;
+            }
+        }
+        let tmp_point = new Point((l[1].p1.x + best_point.x)/2, (l[1].p1.y + best_point.y)/2);
+        create_edge(l[1].p1, best_point, tmp_point);
+        Intersect(edges[edges.length-1], l[1]);
+        let part = l[0].slice(0, index);
+        FPVD_subtree([part, edges[edges.length-1]]);
+        tmp_point = new Point((l[1].p2.x + best_point.x)/2, (l[1].p2.y + best_point.y)/2);
+        create_edge(best_point, l[1].p2, tmp_point);
+        Intersect(edges[edges.length-1], l[1]);
+        part = l[0].slice(index+1);
+        FPVD_subtree([part, edges[edges.length-1]]);
+    }
+}
+
+function dist_point_edge(p, e) {
+    return Math.abs(-e.a*p.x + p.y -e.b)/Math.sqrt(e.a**2+1);
+}
+
+function Intersect(e1, e2) {
+    let x = (e1.b - e2.b)/(e2.a - e1.a);
+    intersect = new Point(x, e1.a*x + e1.b);
+    if (e1.x1 == null) {
+        e1.setIntersect1(intersect.x, intersect.y);
+    } else if (e1.x1 != intersect.x || e1.y1 != intersect.y) {
+        e1.setIntersect2(intersect.x, intersect.y);
+    }
+    if (e2.x1 == null) {
+        e2.setIntersect1(intersect.x, intersect.y);
+    } else if (e2.x1 != intersect.x || e2.y1 != intersect.y) {
+        e2.setIntersect2(intersect.x, intersect.y);
+    }
+}
+
+function infinity_line() {
+    for (let i = 0; i < edges.length; i++) {
+        if (edges[i].x2 == null){
+            if ((edges[i].p1.x + edges[i].p2.x)/2 > edges[i].x1) {
+                edges[i].x2 = -9999;
+                edges[i].y2 = edges[i].a*(-9999) + edges[i].b;
+            } else if ((edges[i].p1.x + edges[i].p2.x)/2 < edges[i].x1) {
+                edges[i].x2 = 9999;
+                edges[i].y2 = edges[i].a*9999 + edges[i].b;
+            } else if ((edges[i].p1.y + edges[i].p2.y)/2 > edges[i].y1) {
+                edges[i].y2 = -9999;
+                edges[i].x2 = ((-9999) - edges[i].b)/edges[i].a;
+            } else if ((edges[i].p1.y + edges[i].p2.y)/2 < edges[i].y1) {
+                edges[i].y2 = 9999;
+                edges[i].x2 = (9999 - edges[i].b)/edges[i].a;
+            } else {
+                console.log("merde");
+            }
+        }
+    }
 }
 
 windowResized = function () {
