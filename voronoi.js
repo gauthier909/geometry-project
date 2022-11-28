@@ -28,6 +28,7 @@ var points = [];
 var lines = [];
 var circles = [];
 var showCenter = false;
+var leftMostPoint;
 
 
 function setup() {
@@ -68,8 +69,8 @@ function draw() {
     }
 
     /*Show the center of the smallest circle*/
-    if(showCenter){
-        ellipse(circles[0].x,circles[0].y,10,10)
+    if (showCenter) {
+        ellipse(circles[0].x, circles[0].y, 10, 10)
     }
 
 }
@@ -96,7 +97,7 @@ function drawCH() {
             }
         }
     }
-    console.log(convexHull);
+    classifyClockWise();
 }
 
 function isSegmentConvex(point1, point2, points) {
@@ -125,6 +126,74 @@ function addInConvexHull(point1, point2) {
     }
 
 }
+
+function classifyClockWise() {
+    var sorted = [];
+    convexHull.sort((p1, p2) => p1.x - p2.x);
+    console.log(convexHull);
+    leftMostPoint = convexHull[0];
+    var copy = convexHull.slice();
+    var current = leftMostPoint;
+    sorted.push(current);
+    var connected;
+    for (var i = 1; i < convexHull.length; i++) {
+        for (l in lines) {
+            if (lines[l].x1 === current.x && lines[l].y1 === current.y) {
+                let p = new Point(lines[l].x2, lines[l].y2);
+                connected = p;
+                if (checkNextConnectedPoint(current, connected)) {
+                    sorted.push(connected);
+                }
+            }
+
+            if (lines[l].x2 === current.x && lines[l].y2 === current.y) {
+                let p = new Point(lines[l].x1, lines[l].y1);
+                connected = p;
+                if (checkNextConnectedPoint(current, connected)) {
+                    sorted.push(connected);
+                }
+            }
+        }
+        current = convexHull[i]
+    }
+    console.log(sorted);
+}
+
+function checkNextConnectedPoint(current, connected) {
+    for (l in lines) {
+        if (lines[l].x1 === connected.x && lines[l].y1 === connected.y) {
+            if (!(lines[l].x2 === current.x && lines[l].y2 === current.y)) {
+                let next = new Point(lines[l].x2, lines[l].y2);
+                return calcRightOrientation(current, connected, next)
+            }
+
+        }
+
+        if (lines[l].x2 === connected.x && lines[l].y2 === connected.y) {
+            if (!(lines[l].x1 === current.x && lines[l].y1 === current.y)) {
+                let next = new Point(lines[l].x1, lines[l].y1);
+                return calcRightOrientation(current, connected, next)
+            }
+
+        }
+    }
+
+}
+
+function calcRightOrientation(p, q, r) {
+    let x1 = q.x - p.x;
+    let x2 = r.x - p.x;
+    let x3 = q.y - p.y;
+    let x4 = r.y - p.y;
+    let res = x1 * x4 - x2 * x3;
+    if (res > 0) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 
 /*Calcul du plus petit cercle*/
 function smallestCircle() {
