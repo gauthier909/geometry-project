@@ -62,6 +62,7 @@ function setup() {
     createCanvas(1000, 700);
 
     input = createInput();
+    input.position(30, 200);
     button = createButton('Add random point');
 
     button.mousePressed(randomPoint);
@@ -70,8 +71,11 @@ function setup() {
 
     button2.mousePressed(drawSetup);
 
-    button.position(1000, 900);
-    button2.position(1150, 900);
+    button3 = createButton('Clear');
+    button3.mousePressed(reset);
+    button.position(input.x + input.width, 200);
+    button2.position(button.x + button.width, 200);
+    button3.position(button2.x + button2.width, 200);
 
 }
 
@@ -474,6 +478,23 @@ function infinity_line(infinity_0) {
     }
 }
 
+function reset() {
+    convexHull = [];
+    sorted = [];
+    points = [];
+    lines = [];
+    circles = [];
+    edges = [];
+    CH_is_sorted = false;
+    showCenter = false;
+    leftMostPoint;
+    fpvd = false;
+    fpvd_2 = true;
+    drawCircle = false;
+}
+
 windowResized = function () {
     resizeCanvas(windowWidth, windowHeight);
 };
+
+
