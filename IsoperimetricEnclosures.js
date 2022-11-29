@@ -143,7 +143,7 @@ function drawSetup() {
     smallestCircle();
     var userP = input.value();
     var circleP = calculateCircleP(circles[0].r);
-    if (circleP <= userP) {
+    if (circleP >= userP) {
         return true;
     }
     else {
