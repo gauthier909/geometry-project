@@ -22,25 +22,31 @@
   <body>
     <h1>Voronoi Diagram</h1>
     <img src="voronoi.png">
-    <p>The basic voronoi diagram consist in finitely many points (seeds) in a plane. For each points there is a corresponding region, called a Voronoi cell, consisting of all points of the plane closer to that seed than to any other:</p>
-    <p>But in our case we will use the the farthest-point Voronoi diagram in order to compute the (P, Q)-curve of maximum area.</p>
-    <p>In order to construct the farthest point voronoi diagram we first need to construct the convex hull (using gift wrapping algorithm) of the points and then the smallest enclosing circle (using Welzl's algorithm)</p>
+    <p>The basic voronoi diagram consist in finitely many points (seeds) in a plane. 
+      For each points there is a corresponding region, called a Voronoi cell, 
+      consisting of all points of the plane closer to that seed than to any other:</p>
+    <p>But in order to compute the enclosed curve of maximum area with a predetermined perimeter, we will
+      need the farthest-point Voronoi diagram. It is a variant of the Voronoi diagram, in which each cell of 
+      the FPVD (farthest-point Voronoi diagram) contains all the points of the plane that has for farthest seed,
+      the same one. So for each cell, instead of containing all the points that share the same closest seed 
+      , they share the same farthest seed.
+      </p>
+    <p>The FPVD can be seen as a tree with n unbounded edges and we can think of the leaves
+      of this tree as points at infinity in the direction of these unbounded edges 
+      (<cite>Isoperimetric Enclosures</cite> by Greg Aloupis et al.
+      and <cite>Computational Geometry: Algorithms and Applications</cite> by M. de Berg et al.)</p>
+    <p>In order to construct the farthest point voronoi diagram we first need to construct the convex hull 
+      (using gift wrapping algorithm) of the points (seeds) to 
+      determine the farthest points because a point that is not part of the convex hull cannot be a farthest point
+      of a region because there will always be another one that is farther and that is part of the convex hull.
+      And then  we will construct the smallest enclosing circle (using Welzl's algorithm) because of some properties.
+      Notably the fact that the center of the smallest enclosing circle lies either on a vertex or an edge of the FPVD.</p>
+    <p>Below a canva to compute the farthest point voronoi diagram from a set of point. Create this set of points by
+      clicking on "Add random point" button (create a point at random coordinates). Then compute the convex hull by 
+      clicking on "Draw CH" button. Then compute the smallest enclosing circle by clicking on "Smallest circle" button.
+      And finally compute the FPVD by clicking on "FPVD" button. Use the "Clear" button to clear everything.
+    </p>
     <script src="voronoi.js"></script>
     
   </body>
 </html>
-
-<!-- <html>
-  <head>
-    <script src="libraries/p5.min.js"></script>
-    <script src="libraries/p5.sound.min.js"></script>
-    <script type="text/javascript" id="MathJax-script" async
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-    </script>
-  </head>
-  <body>
-  	<div id="canvas"></div>
-  	<input type="button" id="btnGo" value="Go" onclick="btnGoClicked()">
-    <script src="voronoi.js"></script>
-  </body>
-</html> -->
