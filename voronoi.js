@@ -163,9 +163,9 @@ function drawCH() {
             }
         }
     }
-    //console.log(convexHull);
 }
 
+/*Convex function to compute CH*/
 function isSegmentConvex(point1, point2, points) {
     let side = null;
     for (const point of points) {
@@ -182,7 +182,7 @@ function isSegmentConvex(point1, point2, points) {
     return true;
 }
 
-/*Ici j'ajoute tout les points du convex hull dans le tableau convexHull []*/
+/*Add every points of the CH in the convexHull [] array*/
 function addInConvexHull(point1, point2) {
     if (!convexHull.some((e) => (e.x === point1.x && e.y === point1.y))) {
         convexHull.push(point1);
@@ -193,6 +193,7 @@ function addInConvexHull(point1, point2) {
 
 }
 
+/*Order CH points clockwise*/
 function classifyClockWise() {
     convexHull.sort((p1, p2) => p1.x - p2.x);
     leftMostPoint = convexHull[0];
@@ -238,7 +239,7 @@ function classifyClockWise() {
     CH_is_sorted = true;
 }
 
-/*Calcul du plus petit cercle*/
+/*Compute the smallest circle*/
 function smallestCircle() {
     const result = (welzl(convexHull, convexHull.length, [], 0));
     let smallestCircle = new Circle(result.x, result.y, result.r * 2);
@@ -246,7 +247,7 @@ function smallestCircle() {
     showCenter = true;
 }
 
-/*Algorithme de welzl qui permet de trouver le plus petit cercle*/
+/*Welzl's algorithm for smallest circle*/
 function welzl(convexHull, nbrPoints, bound, b) {
     let circle;
     if (b === 3) circle = check3(bound[0], bound[1], bound[2])
