@@ -20,7 +20,7 @@
   </head>
 
   <body>
-    <h1>Circular Arc (absolutely not finished)</h1>
+    <h1>Circular Arc</h1>
     <p> Let's consider an open curve joining two endpoints of a segment to form a closed curve of maximum area
         for a fixed perimeter. Then this open curve is a circular arc. We can intiutively see it if we extend
         this open curve to a full circle. We would obtain a circle and the two endpoints of the segment would be
@@ -34,8 +34,17 @@
     </p>
     <p> The reason why the circular arcs should be of similar radius is because a closed curve of maximum area
       has to be convex (see <a href="convex.html">Convexity</a>). For the same reason, the endpoints of these
-      circular arcs have to be vertices of the polygon. (need more text + need the swap of part of circular arc
-      in the canvas)
+      circular arcs have to be vertices of the polygon.
+    </p>
+    <p>To show that they must be of similar radius, we will consider a simple polygon (equilateral triangle) that's
+      enclosed by a sequence of circular arcs of different radii and we will then swap a part of each circular arc
+      (the segments connecting the two endpoints of each part of circular arc are of same length) 
+      with the part of one of the other two circular arc. We will see that we will obtain a non-convex curve of same
+      perimeter than the one before the swapping. And as we have seen, a closed curve of maximum area must be convex
+      and thus the circular arcs must be of same radius.
+    </p>
+    <p>To see this, try on the canva below to put 85 for radius 1, 180 for radius 2, and 130 for radius 3. Then click
+      on the swap button.
     </p>
     <script src="CircularArc.js"></script>
   </body>
