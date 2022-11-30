@@ -58,6 +58,7 @@ var fpvd = false;
 var fpvd_2 = true;
 var drawCircle = false;
 var fpvd_vertices = [];
+var enclosure_order = [];
 
 function setup() {
     createCanvas(windowWidth, 700);
@@ -101,6 +102,7 @@ function reset() {
     fpvd_2 = true;
     drawCircle = false;
     fpvd_vertices = [];
+    enclosure_order = [];
 }
 
 function draw() {
@@ -150,8 +152,9 @@ function randomPoint() {
 }
 
 
-/*compute the convex hull*/
+
 function drawSetup() {
+    /*compute the convex hull*/
     for (let i = 0; i < points.length - 1; i++) {
         for (let j = i + 1; j < points.length; j++) {
             if (points[i] != points[j]) {
@@ -163,15 +166,37 @@ function drawSetup() {
             }
         }
     }
+    /*compute the smallest circle*/
     smallestCircle();
     var userP = input.value();
     var circleP = calculateCircleP(circles[0].r);
     if (circleP > userP) {
         drawCircle = false;
-        //continue
+        let tmp_p = 0;
+        for (let i = 0; i < lines.length; i++) {
+            let p1 = new Point(lines[i].x1, lines[i].y1);
+            let p2 = new Point(lines[i].x2, lines[i].y2);
+            tmp_p += findDist(p1, p2);
+        }
+        if (userP > tmp_p) {
+            /*compute the FPVD*/
+            FPVD();
+            /*sort the vertices by p*/
+            fpvd_vertices.sort(function(a, b){return a[1] - b[1]});
+            /*Binary search*/
+            console.log("coucou1");
+            let r = Binary_search(userP);
+            console.log("coucou2");
+            console.log(r);
+            if (r.length != 1) {
+                r = approx_r(r, userP);
+                draw_enclosure(r);
+            } else {
+                draw_enclosure(r[0]);
+            }
+        }
     } else {
-        console.log(circleP);
-        console.log(userP);
+        /*draw the smallest circle*/
         newDiametre = userP / (Math.PI);
         circles[0].r = newDiametre;
         drawCircle = true;
@@ -476,20 +501,27 @@ function create_vertex(vertex) {
     }
     if (already_registered == false) {
         let p = compute_p_vertex(vertex);
-        fpvd_vertices.push([vertex, p]);
+        fpvd_vertices.push([vertex, p[0], "", p[1]]);
     }
 }
 
 function compute_p_vertex(vertex) {
     let best_p = 0;
+    let index = [-1, -1];
     let dist;
     for (let i = 0; i < sorted; i++) {
         dist = Math.sqrt((sorted.y - vertex.y)**2 + (sorted.x - vertex.x)**2);
-        if (dist > best_p) {
+        if (dist >= best_p) {
             best_p = dist;
+            if (index[0] == -1) {
+                index[0] = i;
+            } else {
+                index[1] = i;
+            }
+            index = i;
         }
     }
-    return best_p;
+    return [best_p, index]
 }
 
 function infinity_line(infinity_0) {
@@ -525,6 +557,166 @@ function infinity_line(infinity_0) {
                 edges[i].x2 = (edges[i].x2  - edges[i].b)/edges[i].a;
             } 
         }
+    }
+}
+
+function Binary_search(P) {
+    let res = [];
+    let index = Math.round(fpvd_vertices.length/2);
+    console.log(index);
+    console.log(fpvd_vertices);
+    while (((fpvd_vertices.length != index && (fpvd_vertices[index-1][2] != "plus" || 
+    fpvd_vertices[index][2] != "minus")) && (index != 1 && (fpvd_vertices[index-1][2] != "minus" &&
+     fpvd_vertices[index-2][2] != "plus")) && fpvd_vertices[index-1][2] != "equal")) {
+        perimeter = P_from_enclosure(fpvd_vertices[index-1]);
+        console.log(perimeter);
+        console.log(index);
+        console.log(fpvd_vertices);
+        if (perimeter > P) {
+            fpvd_vertices[index-1][2] = "plus";
+            index = index + Math.round(index/2);
+        } else if (perimeter < P) {
+            fpvd_vertices[index-1][2] = "minus";
+            index = index - Math.round(index/2);
+        } else {
+            fpvd_vertices[index-1][2] = "equal";
+        }
+    }
+    if (fpvd_vertices[index-1][2] == "minus") {
+        res = [fpvd_vertices[index-1][2], fpvd_vertices[index-2][2]];
+    } else if (fpvd_vertices[index-1][2] == "plus") {
+        res = [fpvd_vertices[index][2], fpvd_vertices[index-1][2]];
+    } else {
+        res = [fpvd_vertices[index-1][2]];
+    }
+    return res;
+}
+
+function P_from_enclosure(p) {
+    enclosure_order = [[p[3][0], p[3][1]]];
+    let angle1 = findAngle(p[0], p[3][0], p[1]);
+    let angle2 = findAngle(p[0], p[3][1], p[1]);
+    let perimeter = Math.abs(angle1 - angle2)*p[1];
+    let cpy_sorted = sorted.slice();
+    let shift_at_the_end = cpy_sorted.slice(0, p[3][0]);
+    for (let i = 0; i < p[3][1]; i++) {
+        cpy_sorted.shift();
+    }
+    cpy_sorted.concat(shift_at_the_end);
+    while (cpy_sorted.length > 0) {
+        for (let i = 1; i < cpy_sorted.length; i++) {
+            let flag = false;
+            let center = findCenter(cpy_sorted[0], cpy_sorted[i], p[1]);
+            for (let j = 0; j < sorted.length; i++) {
+                if (!inCircle(sorted[j], center)) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (flag == false) {
+                enclosure_order.push([cpy_sorted[0], cpy_sorted[i]]);
+                angle1 = findAngle(center, cpy_sorted[0], p[1]);
+                angle2 = findAngle(center, cpy_sorted[i], p[1]);
+                perimeter += Math.abs(angle1 - angle2)*p[1];
+                for (let j = 0; j < i; j++) {
+                    cpy_sorted.shift();
+                }
+                break;
+            }
+        }
+    }
+    return perimeter;
+}
+
+function approx_r(p, P) {
+    let r = (p[0] + p[1])/2;
+    let perimeter = 0;
+    let center;
+    let angle1;
+    let angle2;
+    while (!(perimeter > (P - 0.1) && perimeter < (P + 0.1))) {
+        perimeter = 0;
+        for (let i = 0; i < enclosure_order.length; i++) {
+            center = findCenter(enclosure_order[i][0], enclosure_order[i][1], r);
+            angle1 = findAngle(center, enclosure_order[i][0], r);
+            angle2 = findAngle(center, enclosure_order[i][1], r);
+            perimeter += Math.abs(angle1 - angle2)*r;
+        }
+        if (!(perimeter > (P - 0.1) && perimeter < (P + 0.1))) {
+            if (perimeter < P) {
+                r -= (r - p[0])/2;
+            } else {
+                r += (p[1] - r)/2;
+            }
+        }
+    }
+    return r;
+}
+
+function findCenter(p1, p2, radius) {
+    let q = findDist(p1, p2);
+    let x = (p1.x + p2.x)/2;
+    let y = (p1.y + p2.y)/2;
+    let x_F = x + Math.sqrt(radius**2-(q/2)**2)*(p1.y-p2.y)/q;
+    let y_F = y + Math.sqrt(radius**2-(q/2)**2)*(p2.x-p1.x)/q;
+    let c = new Point(x_F, y_F);
+
+    for (let i = 0; i < sorted.length; i++) {
+        if (!inCircle(sorted[i], c)) {
+            x_F = x - Math.sqrt(radius**2-(q/2)**2)*(p1.y-p2.y)/q;
+            y_F = y - Math.sqrt(radius**2-(q/2)**2)*(p2.x-p1.x)/q;
+        }
+    }
+
+    let center = new Point(x_F, y_F);
+    return center;
+}
+
+function draw_enclosure(r) {
+    let center;
+    let angle1;
+    let angle2;
+    for (let i = 0; i < enclosure_order.length; i++) {
+        center = findCenter(enclosure_order[i][0], enclosure_order[i][1], r);
+        angle1 = findAngle(center, enclosure_order[i][0], r);
+        angle2 = findAngle(center, enclosure_order[i][1], r);
+        drawArc(center, angle1, angle2, enclosure_order[i][0], enclosure_order[i][1], r);
+    }
+}
+
+//Cosine rule
+function findAngle(center, p1, radius) {
+    let dist_p1_center = findDist(p1, center);
+    let p2 = new Point(center.x + radius, center.y);
+    let dist_p1_p2 = findDist(p1, p2);
+    let angle = Math.acos((2*dist_p1_center**2 - dist_p1_p2**2)/(2*dist_p1_center**2));
+    return angle;
+}
+
+function findDist(p1, p2) {
+    let dist = Math.sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2);
+    return dist;
+}
+
+
+function drawArc(center, angle1, angle2, p1, p2, radius) {
+    let f_angle1;
+    let f_angle2;
+    if (p1.y > center.y) {
+        f_angle1 = angle1;
+    } else {
+        f_angle1 = 2*PI - angle1;
+    }
+    if (p2.y > center.y) {
+        f_angle2 = angle2;
+    } else {
+        f_angle2 = 2*PI - angle2;
+    }
+    if ((f_angle1 > f_angle2 && (f_angle1 - f_angle2 > PI)) ||
+    (f_angle1 < f_angle2 && (f_angle2 - f_angle1 < PI))) {
+        arc(center.x, center.y, radius*2, radius*2, f_angle1, f_angle2, OPEN);
+    } else {
+        arc(center.x, center.y, radius*2, radius*2, f_angle2, f_angle1, OPEN);
     }
 }
 
