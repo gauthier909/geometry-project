@@ -172,7 +172,7 @@ function drawSetup() {
     } else {
         console.log(circleP);
         console.log(userP);
-        newDiametre = userP / (2 * Math.PI);
+        newDiametre = userP / (Math.PI);
         circles[0].r = newDiametre;
         drawCircle = true;
     }
