@@ -25,8 +25,25 @@
         P ≥ t, we have the following problem: Of all curves of perimeter P that enclose S, which is the
         curve that encloses the maximum area ?
     </p>
-    <p> To answer this question, we will use the following algorithm :
+    <p> To answer this question, we will use the following algorithm 
+      (<cite>Isoperimetric Enclosures</cite> by Greg Aloupis et al.) :
     </p>
+    <ol>
+      <li>Compute the smallest enclosing circle that contains S (and thus it's convex hull) and compare
+        the perimeter of this circle with P.
+      </li>
+      <li>If P ≥ perimeter of the smallest enclosing circle : construct the circle that has the same center
+        than the smallest enclosing circle with perimeter P.
+      </li>
+      <li>If P < perimeter of the smallest enclosing circle : As we have seen, the solution will look like
+      a sequence of circular arcs with the same radius. First compute the FPVD of S and register all the
+      vertices v of the FPVD with their p(v). With p(v) being the radius of the smallest enclosing circle with
+      center v. Then sort the vertices by their value under p. We can then approximate the radius of the arcs 
+      by doing a binary search in the set {p(v), v is a vertex of the FPVD of S}. We will find  vertices v and u,
+      such that for the correct radius r, we have p(v) < r < p(u). At this point, the curve we are looking for has the same
+      combinatorial structure for any radius p(v) < r' < p(u). We have thus a combinatorial description 
+      of the curve where only the radius p(v) < r < p(u) has yet to be determined.</li>
+    </ol>
     <script src="IsoperimetricEnclosures.js"></script>
   </body>
 </html>
