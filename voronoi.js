@@ -110,7 +110,7 @@ function clear_all() {
 
 
 function draw() {
-    // Put drawings here
+
     background(200);
 
     for (i in points) {
@@ -292,6 +292,7 @@ function inCircle(p, c) {
     return ((c.x - p.x) * (c.x - p.x) + (c.y - p.y) * (c.y - p.y) <= c.r * c.r)
 }
 
+//compute the farthest point voronoi diagram
 function FPVD() {
     edges = [];
     if (CH_is_sorted == false) {
@@ -308,6 +309,7 @@ function FPVD() {
     infinity_line(infinity_0);
 }
 
+//compute the points of the convex hull that are located at the boundary of the smallest enclosing circle
 function boundary(ch) {
     let res = [];
     for (let i = 0; i < ch.length; i++) {
@@ -319,6 +321,7 @@ function boundary(ch) {
     return res;
 }
 
+//Create an edge of the farthest point voronoi diagram
 function createEdge(p1, p2, c) {
     let a = p2.y - p1.y;
     let b = p1.x - p2.x;
@@ -329,6 +332,7 @@ function createEdge(p1, p2, c) {
     edges.push(edge);
 }
 
+//Root function for the construction of the tree of the farthest point voronoi diagram
 function FPVD_tree(p_list, ch, c) {
     let flag = true;
     let res = [];
@@ -370,6 +374,7 @@ function FPVD_tree(p_list, ch, c) {
     }
 }
 
+//construction of a subtree of the farthest point voronoi diagram
 function FPVD_subtree(l) {
 
     let tmp_point;
@@ -409,6 +414,7 @@ function FPVD_subtree(l) {
     }
 }
 
+//determine the next branch of the tree of the farthest point voronoi diagram
 function dist_point_edge(p, e) {
     let a = e.p1.y - p.y;
     let b = p.x - e.p1.x;
@@ -422,6 +428,7 @@ function dist_point_edge(p, e) {
     return  Math.sqrt((x2 - x)**2 + (y2 - y)**2);
 }
 
+//Compute the intersection (vertex of FPVD) of 2 edges of the farthest point voronoi diagram
 function Intersect(e1, e2, index) {
     let x = (e1.b - e2.b)/(e2.a - e1.a);
     intersect = new Point(x, e1.a*x + e1.b);
@@ -441,6 +448,7 @@ function Intersect(e1, e2, index) {
     }
 }
 
+//make the leaves of the tree of the farthest point voronoi diagram points at infinity
 function infinity_line(infinity_0) {
     for (let i = 0; i < edges.length; i++) {
         if (edges[i].x2 == null){
