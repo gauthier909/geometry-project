@@ -1,3 +1,5 @@
+var Swapflag = false;
+
 class Point {
     constructor(x, y) {
       this.x = x;
@@ -9,23 +11,31 @@ function setup() {
     canvas = createCanvas(windowWidth, 400);
 
     input1 = createInput();
-    input1.position(30, 280);
 
     input2 = createInput();
-    input2.position(input1.x + input1.width, input1.y);
 
     input3 = createInput();
-    input3.position(input2.x + input2.width, input2.y);
+
+    button = createButton('Swap');
+
+    button.mousePressed(Swap);
 }
 
+function Swap() {
+    if (Swapflag == true) {
+        Swapflag = false;
+    } else {
+        Swapflag = true;
+    }
+}
   
 function draw() {
-    // Put drawings here
+
     background(200);
 
-    text("Radius 1", input1.x + 50, 20); //70 20
-    text("Radius 2", input2.x + 50, 20);  //230 20
-    text("Radius 3", input3.x + 50, 20); //390 20
+    text("Radius 1", 50, 390); 
+    text("Radius 2", 225, 390);  
+    text("Radius 3", 400, 390); 
     
     const p1 = new Point(windowWidth/2 - (500/6), 
     250 + ((500/6)/Math.sin(Math.PI/3))*Math.sin(Math.PI/6));
@@ -33,23 +43,43 @@ function draw() {
     const p3 = new Point(windowWidth/2, p1.y - ((500/6)/Math.sin(PI/6))*Math.sin(PI/3));
     triangle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
 
-    let radius = int(input1.value());
-    let center = findCenter(p1, p2, radius, "up", "up");
-    let angle1 = findAngle(center, p1, radius);
-    let angle2 = findAngle(center, p2, radius);
-    drawArc(center, angle1, angle2, p1, p2, radius);
+    let radius_1 = int(input1.value());
+    let center_1 = findCenter(p1, p2, radius_1, "up", "up");
+    let angle1_1 = findAngle(center_1, p1, radius_1);
+    let angle2_1 = findAngle(center_1, p2, radius_1);
+    drawArc(center_1, angle1_1, angle2_1, p1, p2, radius_1);
+    let point1 = new Point((p1.x + (p2.x - p1.x)/3), findY(center_1, radius_1, (p1.x + (p2.x - p1.x)/3), false));
+    let point2 = new Point((p1.x + 2*(p2.x - p1.x)/3), findY(center_1, radius_1, (p1.x + 2*(p2.x - p1.x)/3), false));
+    let radius_2 = int(input2.value());
+    let center_2 = findCenter(p2, p3, radius_2, "left", "down");
+    let angle1_2 = findAngle(center_2, p2, radius_2);
+    let angle2_2 = findAngle(center_2, p3, radius_2);
+    drawArc(center_2, angle1_2, angle2_2, p2, p3, radius_2);
+    let point3 = new Point(findX(center_2, radius_2, p3.y + (p2.y - p3.y)/3, true), p3.y + (p2.y - p3.y)/3);
+    let point4 = new Point(findX(center_2, radius_2, p3.y + 2*(p2.y - p3.y)/3, true), p3.y + 2*(p2.y - p3.y)/3);
+    let radius_3 = int(input3.value());
+    let center_3 = findCenter(p1, p3, radius_3, "right", "down");
+    let angle1_3 = findAngle(center_3, p1, radius_3);
+    let angle2_3 = findAngle(center_3, p3, radius_3);
+    drawArc(center_3, angle1_3, angle2_3, p1, p3, radius_3);
+    let point5 = new Point(findX(center_3, radius_3, p3.y + (p1.y - p3.y)/3, false), p3.y + (p1.y - p3.y)/3);
+    let point6 = new Point(findX(center_3, radius_3, p3.y + 2*(p1.y - p3.y)/3, false), p3.y + 2*(p1.y - p3.y)/3);
+    if (Swapflag == true) {
+        center_1 = findCenter(point1, point2, radius_3, "up", "up");
+        angle1_1 = findAngle(center_1, point1, radius_3);
+        angle2_1 = findAngle(center_1, point2, radius_3);
+        drawArc(center_1, angle1_1, angle2_1, point1, point2, radius_3);
 
-    radius = int(input2.value());
-    center = findCenter(p2, p3, radius, "left", "down");
-    angle1 = findAngle(center, p2, radius);
-    angle2 = findAngle(center, p3, radius);
-    drawArc(center, angle1, angle2, p2, p3, radius);
+        center_1 = findCenter(point3, point4, radius_1, "left", "down");
+        angle1_1 = findAngle(center_1, point3, radius_1);
+        angle2_1 = findAngle(center_1, point4, radius_1);
+        drawArc(center_1, angle1_1, angle2_1, point3, point4, radius_1);
 
-    radius = int(input3.value());
-    center = findCenter(p1, p3, radius, "right", "down");
-    angle1 = findAngle(center, p1, radius);
-    angle2 = findAngle(center, p3, radius);
-    drawArc(center, angle1, angle2, p1, p3, radius);
+        center_1 = findCenter(point5, point6, radius_2, "right", "down");
+        angle1_1 = findAngle(center_1, point5, radius_2);
+        angle2_1 = findAngle(center_1, point6, radius_2);
+        drawArc(center_1, angle1_1, angle2_1, point5, point6, radius_2);
+    }
 }
   
   // This Redraws the Canvas when resized
@@ -118,4 +148,25 @@ function drawArc(center, angle1, angle2, p1, p2, radius) {
     } else {
         arc(center.x, center.y, radius*2, radius*2, f_angle2, f_angle1, OPEN);
     }
+}
+
+function findX(center, radius, y, plus) {
+    let x = Math.sqrt(radius**2 - (y - center.y)**2) + center.x;
+    if (plus == false) {
+        x = 2*center.x - x;
+    }
+    return x;
+}
+
+function findY(center, radius, x, plus) {
+    let y = Math.sqrt(radius**2 - (x - center.x)**2) + center.y;
+    if (plus == false) {
+        y = 2*center.y - y;
+    }
+    if (y > center.y) {
+        y = y - 2*(y - center.y);
+    } else {
+        y = y + 2*(center.y - y);
+    }
+    return y;
 }
