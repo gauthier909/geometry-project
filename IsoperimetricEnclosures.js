@@ -57,6 +57,7 @@ var leftMostPoint;
 var fpvd = false;
 var fpvd_2 = true;
 var drawCircle = false;
+var fpvd_vertices = [];
 
 function setup() {
     createCanvas(windowWidth, 700);
@@ -99,6 +100,7 @@ function reset() {
     fpvd = false;
     fpvd_2 = true;
     drawCircle = false;
+    fpvd_vertices = [];
 }
 
 function draw() {
@@ -148,6 +150,7 @@ function randomPoint() {
 }
 
 
+/*compute the convex hull*/
 function drawSetup() {
     for (let i = 0; i < points.length - 1; i++) {
         for (let j = i + 1; j < points.length; j++) {
@@ -163,21 +166,21 @@ function drawSetup() {
     smallestCircle();
     var userP = input.value();
     var circleP = calculateCircleP(circles[0].r);
-    if (circleP >= userP) {
-        return true;
-    }
-    else {
+    if (circleP > userP) {
+        drawCircle = false;
+        //continue
+    } else {
+        console.log(circleP);
+        console.log(userP);
         newDiametre = userP / (2 * Math.PI);
         circles[0].r = newDiametre;
         drawCircle = true;
-        //continue algo
     }
 }
 
 function calculateCircleP(r) {
     return Math.PI * r;
 }
-
 
 /*Convex function to compute CH*/
 function isSegmentConvex(point1, point2, points) {
@@ -255,13 +258,12 @@ function classifyClockWise() {
 
 /*Compute the smallest circle*/
 function smallestCircle() {
+    console.log(convexHull);
     const result = (welzl(convexHull, convexHull.length, [], 0));
     let smallestCircle = new Circle(result.x, result.y, result.r * 2);
-    /*
     while (circles.length > 0) {
         circles.pop();
     }
-    */
     circles.push(smallestCircle);
     showCenter = true;
 }
@@ -317,14 +319,14 @@ function FPVD() {
         classifyClockWise();
     }
     let boundary_points = boundary(sorted);
-    let infinity_0 = true;
+    //let infinity_0 = true;
     let circle_flag = false;
     if (boundary_points.length > 2) {
         circle_flag = true;
         infinity_0 = false
     }
     FPVD_tree(boundary_points, sorted, circle_flag);
-    infinity_line(infinity_0);
+    //infinity_line(infinity_0);
 }
 
 function boundary(ch) {
@@ -446,18 +448,48 @@ function Intersect(e1, e2, index) {
     intersect = new Point(x, e1.a*x + e1.b);
     if (e1.x1 == null) {
         e1.setIntersect1(intersect.x, intersect.y);
+        create_vertex(intersect);
     } else if (!(e1.x1 < intersect.x + 0.1 && e1.x1 > intersect.x -0.1 
         && e1.y1 < intersect.y + 0.1 && e1.y1 > intersect.y -0.1)) {
         e1.setIntersect2(intersect.x, intersect.y);
+        create_vertex(intersect);
     }
     if (e2.x1 == null) {
         e2.setIntersect1(intersect.x, intersect.y);
+        create_vertex(intersect);
         edges[index] = e2;
     } else if (!(e2.x1 < intersect.x + 0.1 && e2.x1 > intersect.x -0.1 
         && e2.y1 < intersect.y + 0.1 && e2.y1 > intersect.y -0.1)) {
         e2.setIntersect2(intersect.x, intersect.y);
+        create_vertex(intersect);
         edges[index] = e2;
     }
+}
+
+function create_vertex(vertex) {
+    let already_registered = false;
+    for (let i = 0; i < fpvd_vertices.length; i++) {
+        if (fpvd_vertices[i][0].x == vertex.x && fpvd_vertices[i][0].y == vertex.y) {
+            already_registered = true;
+            break;
+        }
+    }
+    if (already_registered == false) {
+        let p = compute_p_vertex(vertex);
+        fpvd_vertices.push([vertex, p]);
+    }
+}
+
+function compute_p_vertex(vertex) {
+    let best_p = 0;
+    let dist;
+    for (let i = 0; i < sorted; i++) {
+        dist = Math.sqrt((sorted.y - vertex.y)**2 + (sorted.x - vertex.x)**2);
+        if (dist > best_p) {
+            best_p = dist;
+        }
+    }
+    return best_p;
 }
 
 function infinity_line(infinity_0) {
