@@ -59,7 +59,7 @@ var fpvd_2 = true;
 
 
 function setup() {
-    createCanvas(1000, 700);
+    createCanvas(windowWidth, 700);
 
     button = createButton('Add random point');
     
@@ -77,10 +77,14 @@ function setup() {
 
     button4.mousePressed(Construct_FPVD);
 
-    button.position(1000, 900);
-    button2.position(1150, 900);
-    button3.position(1250, 900);
-    button4.position(1400, 900);
+    button5 = createButton('Clear');
+
+    button5.mousePressed(clear_all);
+
+    //button.position(1000, 900);
+    //button2.position(1150, 900);
+    //button3.position(1250, 900);
+    //button4.position(1400, 900);
 }
 
 function Construct_FPVD() {
@@ -89,6 +93,19 @@ function Construct_FPVD() {
     } else {
         fpvd = false;
     }
+}
+
+function clear_all() {
+    convexHull = [];
+    sorted = [];
+    points = [];
+    lines = [];
+    circles = [];
+    edges = [];
+    CH_is_sorted = false;
+    showCenter = false;
+    fpvd = false;
+    fpvd_2 = true;
 }
 
 
@@ -126,8 +143,8 @@ function draw() {
 
 /*Add random point in the canva*/
 function randomPoint() {
-    let width = Math.floor(Math.random() * 250.5) + 125;
-    let height = Math.floor(Math.random() * 250.5) + 125;
+    let width = Math.floor(Math.random() * 300) + 400;
+    let height = Math.floor(Math.random() * 300) + 200;
     let p = new Point(width, height);
     points.push(p);
 }
@@ -177,41 +194,6 @@ function addInConvexHull(point1, point2) {
 }
 
 function classifyClockWise() {
-    // var sorted = [];
-    // convexHull.sort((p1, p2) => p1.x - p2.x);
-    // console.log(convexHull);
-    // leftMostPoint = convexHull[0];
-    // var copy = convexHull.slice();
-    // var current = leftMostPoint;
-    // sorted.push(current);
-    // var connected;
-    // for (var i = 1; i < convexHull.length; i++) {
-    //     for (l in lines) {
-    //         if (lines[l].x1 === current.x && lines[l].y1 === current.y) {
-    //             let p = new Point(lines[l].x2, lines[l].y2);
-    //             connected = p;
-    //             if (checkNextConnectedPoint(current, connected)) {
-    //                 if (!sorted.some((e) => (e.x === connected.x && e.y === connected.y))) {
-    //                     sorted.push(connected);
-    //                 }
-
-    //             }
-    //         }
-
-    //         if (lines[l].x2 === current.x && lines[l].y2 === current.y) {
-    //             let p = new Point(lines[l].x1, lines[l].y1);
-    //             connected = p;
-    //             if (checkNextConnectedPoint(current, connected)) {
-    //                 if (!sorted.some((e) => (e.x === connected.x && e.y === connected.y))) {
-    //                     sorted.push(connected);
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     current = convexHull[i]
-    // }
-    // console.log(sorted);
-
     convexHull.sort((p1, p2) => p1.x - p2.x);
     leftMostPoint = convexHull[0];
     var current = leftMostPoint;
@@ -222,13 +204,13 @@ function classifyClockWise() {
         if (lines[l].x1 === current.x && lines[l].y1 === current.y) {
             if (lines[l].y2 < minY) {
                 nextPoint = new Point(lines[l].x2, lines[l].y2);
-                break;
+                minY = lines[l].y2;
             }
         }
         if (lines[l].x2 === current.x && lines[l].y2 === current.y) {
             if (lines[l].y1 < minY) {
                 nextPoint = new Point(lines[l].x1, lines[l].y1);
-                break;
+                minY = lines[l].y1;
             }
         }
 
@@ -337,12 +319,9 @@ function boundary(ch) {
 }
 
 function createEdge(p1, p2, c) {
-    
     let a = p2.y - p1.y;
     let b = p1.x - p2.x;
-    let d = a*p1.x + b*p1.y;
     a = a*(-1)/b;
-    //b = d/b;
     a = (-1)*(a**(-1));
     b = c.y - a*c.x;
     let edge = new Edge(a, b, p1, p2);
@@ -354,7 +333,7 @@ function FPVD_tree(p_list, ch, c) {
     let res = [];
     let part = [];
     let index = 0;
-    let first_bound = false;
+    let swap_edge_points = false;
 
     for (let i = 0; i < ch.length; i++) {
         if (p_list.length > 1 && ch[i].x == p_list[index].x && ch[i].y == p_list[index].y) {
@@ -364,9 +343,7 @@ function FPVD_tree(p_list, ch, c) {
                 index = 1;
                 if (c == false) {
                     p_list.splice(0, 1);
-                }
-                if (i == 0) {
-                    first_bound = true;
+                    swap_edge_points = true;
                 }
             } else {
                 createEdge(p_list[0], p_list[1], circles[0]);
@@ -375,31 +352,29 @@ function FPVD_tree(p_list, ch, c) {
             if (c == true) {
                 edges[edges.length-1].setIntersect1(circles[0].x, circles[0].y);
             }
-            res.push([part, edges[edges.length-1], edges.length-1]);
+            res.push([part, edges[edges.length-1], edges.length-1, false]);
             part = [];
         } else if (ch[i] != p_list[0]) {
             part.push(ch[i]);
         } else if (c == false && part.length > 0) {
-            res.push([part, edges[edges.length-1], edges.length-1]);
+            res.push([part, edges[edges.length-1], edges.length-1, swap_edge_points]);
             part = [];
         }
     }
     if (part != []) {
-        if (c == true || first_bound == false) {
-            res[0][0] = part.concat(res[0][0]);
-        } else {
-            res.push([part, res[0][1], res[0][2]]);
-        }
+        res[0][0] = part.concat(res[0][0]);
     }
     for (let i = 0; i < res.length; i++) {
-        console.log(res[i]);
         FPVD_subtree(res[i]);
     }
 }
 
 function FPVD_subtree(l) {
+
+    let tmp_point;
+
     if (l[0].length > 0) {
-        let min_dist = 9999;
+        let min_dist = Infinity;
         let best_point = null;
         let index = 0;
         for (let i = 0; i < l[0].length; i++) {
@@ -410,32 +385,33 @@ function FPVD_subtree(l) {
                 index = i;
             }
         }
-        console.log(min_dist);
-        console.log(best_point);
-        if (best_point == null) {
-            console.log(index);
-            console.log(min_dist);
-            console.log(l[0]);
+        if (l[3] == true) {
+            tmp_point = new Point((l[1].p2.x + best_point.x)/2, (l[1].p2.y + best_point.y)/2);
+            createEdge(l[1].p2, best_point, tmp_point);
+        } else {
+            tmp_point = new Point((l[1].p1.x + best_point.x)/2, (l[1].p1.y + best_point.y)/2);
+            createEdge(l[1].p1, best_point, tmp_point);
         }
-        let tmp_point = new Point((l[1].p1.x + best_point.x)/2, (l[1].p1.y + best_point.y)/2);
-        createEdge(l[1].p1, best_point, tmp_point);
         Intersect(edges[edges.length-1], l[1], l[2]);
         let part = l[0].slice(0, index);
-        FPVD_subtree([part, edges[edges.length-1]]);
-        tmp_point = new Point((l[1].p2.x + best_point.x)/2, (l[1].p2.y + best_point.y)/2);
-        createEdge(best_point, l[1].p2, tmp_point);
+        FPVD_subtree([part, edges[edges.length-1], edges.length-1, false]);
+        if (l[3] == true) {
+            tmp_point = new Point((l[1].p1.x + best_point.x)/2, (l[1].p1.y + best_point.y)/2);
+            createEdge(best_point, l[1].p1, tmp_point);
+        } else {
+            tmp_point = new Point((l[1].p2.x + best_point.x)/2, (l[1].p2.y + best_point.y)/2);
+            createEdge(best_point, l[1].p2, tmp_point);
+        }
         Intersect(edges[edges.length-1], l[1], l[2]);
         part = l[0].slice(index+1);
-        FPVD_subtree([part, edges[edges.length-1]]);
+        FPVD_subtree([part, edges[edges.length-1], edges.length-1, false]);
     }
 }
 
 function dist_point_edge(p, e) {
     let a = e.p1.y - p.y;
     let b = p.x - e.p1.x;
-    let d = a*p.x + b*p.y;
     a = a*(-1)/b;
-    //b = d/b;
     a = (-1)*(a**(-1));
     b = (p.y + e.p1.y)/2 - a*(p.x + e.p1.x)/2;
     let x = (b - e.b)/(e.a - a);
