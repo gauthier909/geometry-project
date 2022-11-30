@@ -11,22 +11,22 @@ class Point {
   }
 
 function setup() {
-    createCanvas(windowWidth, 400);
+    canvas = createCanvas(windowWidth, 400);
 
     button = createButton('Step 1');
-    button.position(30, 240);
+
     button.mousePressed(Step1);
 
     button2 = createButton('Step 2');
-    button2.position(button.x + button.width, 240);
+
     button2.mousePressed(Step2);
 
     button3 = createButton('Step 3');
-    button3.position(button2.x + button2.width, 240);
+
     button3.mousePressed(Step3);
 
     button4 = createButton('Step 4');
-    button4.position(button3.x + button3.width, 240);
+
     button4.mousePressed(Step4);
 }
 
@@ -76,7 +76,7 @@ function Step4() {
 
   
 function draw() {
-    // Put drawings here
+
     background(200);
     
     if (Step1flag == true || Step2flag == true || Step3flag == true || Step4flag == true) {
