@@ -36,7 +36,7 @@
       (<cite>Isoperimetric Enclosures</cite> by Greg Aloupis et al.
       and <cite>Computational Geometry: Algorithms and Applications</cite> by M. de Berg et al.)</p>
     <p>In order to construct the farthest point voronoi diagram we first need to construct the convex hull 
-      (using gift wrapping algorithm) of the points (seeds) to 
+      (using Graham scan) of the points (seeds) to 
       determine the farthest points because a point that is not part of the convex hull cannot be a farthest point
       of a region because there will always be another one that is farther and that is part of the convex hull.
       And then  we will construct the smallest enclosing circle (using Welzl's algorithm) because of some properties.

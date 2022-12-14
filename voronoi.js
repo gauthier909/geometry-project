@@ -303,7 +303,7 @@ function FPVD() {
     let circle_flag = false;
     if (boundary_points.length > 2) {
         circle_flag = true;
-        infinity_0 = false
+        infinity_0 = false;
     }
     FPVD_tree(boundary_points, sorted, circle_flag);
     infinity_line(infinity_0);
