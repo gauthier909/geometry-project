@@ -166,6 +166,7 @@ function drawCH() {
 }
 
 /*Convex function to compute CH*/
+/*https://gist.github.com/globalpolicy/12aa0e11fd737037a5e9be6e97ee474e*/
 function isSegmentConvex(point1, point2, points) {
     let side = null;
     for (const point of points) {
@@ -247,7 +248,9 @@ function smallestCircle() {
     showCenter = true;
 }
 
+
 /*Welzl's algorithm for smallest circle*/
+/*https://github.com/rowanwins/smallest-enclosing-circle/blob/master/src/main.js*/
 function welzl(convexHull, nbrPoints, bound, b) {
     let circle;
     if (b === 3) circle = check3(bound[0], bound[1], bound[2])
