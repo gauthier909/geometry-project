@@ -309,6 +309,7 @@ function smallestCircle() {
 }
 
 /*Welzl's algorithm for smallest circle*/
+/*https://github.com/rowanwins/smallest-enclosing-circle/blob/master/src/main.js*/
 function welzl(convexHull, nbrPoints, bound, b) {
     let circle;
     if (b === 3) circle = check3(bound[0], bound[1], bound[2])
