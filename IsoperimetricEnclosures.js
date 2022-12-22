@@ -222,6 +222,7 @@ function calculateCircleP(r) {
 }
 
 /*Convex function to compute CH*/
+/*https://gist.github.com/globalpolicy/12aa0e11fd737037a5e9be6e97ee474e*/
 function isSegmentConvex(point1, point2, points) {
     let side = null;
     for (const point of points) {
