@@ -740,6 +740,7 @@ function approx_r(p, P) {
     return r;
 }
 
+//https://stackoverflow.com/questions/36211171/finding-center-of-a-circle-given-two-points-and-radius
 function findCenter(p1, p2, radius) {
     let q = findDist(p1, p2);
     let x = (p1.x + p2.x)/2;
